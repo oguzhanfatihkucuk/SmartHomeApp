@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 class DeviceCard extends StatefulWidget {
   final String name;
   final IconData icon;
+  final bool isInitiallyOn; // Başlangıç durumu
+  final ValueChanged<bool> onToggle; // Dışarıya durum değişikliğini iletmek için callback
 
   const DeviceCard({
     Key? key,
     required this.name,
     required this.icon,
+    required this.isInitiallyOn,
+    required this.onToggle,
   }) : super(key: key);
 
   @override
@@ -16,7 +20,13 @@ class DeviceCard extends StatefulWidget {
 }
 
 class _DeviceCardState extends State<DeviceCard> {
-  bool isOn = false;
+  late bool isOn;
+
+  @override
+  void initState() {
+    super.initState();
+    isOn = widget.isInitiallyOn; // Başlangıç durumunu al
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +40,7 @@ class _DeviceCardState extends State<DeviceCard> {
         leading: Icon(
           widget.icon,
           size: 32,
-          color: Colors.blue,
+          color: isOn ? Colors.blue : Colors.grey, // Duruma göre renk değiştir
         ),
         title: Text(
           widget.name,
@@ -42,6 +52,7 @@ class _DeviceCardState extends State<DeviceCard> {
             setState(() {
               isOn = value;
             });
+            widget.onToggle(value); // Durum değişikliğini dışarıya aktar
           },
         ),
       ),

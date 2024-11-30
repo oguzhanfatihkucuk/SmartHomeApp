@@ -1,8 +1,47 @@
 import 'package:flutter/material.dart';
 import '../../assests/RoomsList.dart';
 import 'RoomsDetails.dart';
+import '../../Components/RoomAddForm.dart'; // Form widget'ını içe aktarın
 
-class RoomScreen extends StatelessWidget {
+class RoomScreen extends StatefulWidget {
+  @override
+  _RoomScreenState createState() => _RoomScreenState();
+}
+
+class _RoomScreenState extends State<RoomScreen> {
+  late List<Map<String, dynamic>> roomList;
+
+  @override
+  void initState() {
+    super.initState();
+    roomList = List.from(rooms); // Başlangıçta `rooms` listesinin bir kopyasını al
+  }
+
+  void _showAddRoomForm() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AddRoomForm(
+          onRoomAdded: (String name, String image, int deviceCount) {
+            setState(() {
+              roomList.add({
+                "name": name,
+                "image": image,
+                "devices": List.generate(
+                  deviceCount,
+                      (index) => {
+                    "name": "Cihaz ${index + 1}",
+                    "icon": Icons.device_hub,
+                  },
+                ),
+              });
+            });
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,16 +50,14 @@ class RoomScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              // Yeni oda ekleme işlemi
-            },
+            onPressed: _showAddRoomForm, // Yeni fonksiyon
           ),
         ],
       ),
       body: ListView.builder(
-        itemCount: rooms.length,
+        itemCount: roomList.length,
         itemBuilder: (context, index) {
-          final room = rooms[index];
+          final room = roomList[index];
           return GestureDetector(
             onTap: () {
               Navigator.push(
@@ -30,6 +67,11 @@ class RoomScreen extends StatelessWidget {
                     roomName: room["name"],
                     roomImage: room["image"],
                     devices: room["devices"],
+                    onDelete: () {
+                      setState(() {
+                        roomList.removeAt(index);
+                      });
+                    },
                   ),
                 ),
               );
@@ -96,5 +138,3 @@ class RoomScreen extends StatelessWidget {
     );
   }
 }
-
-

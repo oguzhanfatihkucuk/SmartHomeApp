@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled1/Screens/Home/DetailScreen.dart';
 import 'Screens/Home/HomeScreen.dart';
 import 'Screens/Login/LoginScreen.dart';
 import 'Screens/Rooms/RoomScreen.dart';
@@ -27,10 +26,6 @@ class MyApp extends StatelessWidget {
       GoRoute(
         path: '/main',
         builder: (context, state) => MainScreen(),
-      ),
-      GoRoute(
-        path: '/details',
-        builder: (context, state) => DetailScreen(),
       ),
     ],
   );

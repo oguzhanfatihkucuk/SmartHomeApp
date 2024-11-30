@@ -1,28 +1,58 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import '../../main.dart';
+import '../../Components/DeviceCard.dart';
+import '../../assests/RoomsList.dart';
 
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
 
-class HomeScreen extends StatelessWidget {
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    // Yalnızca `is_on: true` olan cihazları filtrele
+    final filteredDevices = rooms.expand((room) {
+      return (room['devices'] as List)
+          .map((device) => {
+        'name': device['name'],
+        'icon': device['icon'],
+        'roomName': room['name'],
+        'is_on': device['is_on'], // Durumu da ekliyoruz
+        'room': room, // Güncelleme için oda referansı
+      });
+    }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Ana Sayfa')),
+      appBar: AppBar(title: const Text('Ana Sayfa')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                context.go('/details'); // Detaylar sayfasına git
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Her satırda 2 cihaz göstermek için
+            crossAxisSpacing: 8.0, // Dikey boşluk
+            mainAxisSpacing: 8.0, // Yatay boşluk
+          ),
+          itemCount: filteredDevices.length,
+          itemBuilder: (context, index) {
+            final device = filteredDevices[index];
+
+            return DeviceCard(
+              name: device["name"],
+              icon: device["icon"],
+              roomName: device["roomName"],
+              initialStatus: device["is_on"],
+              onToggle: (newStatus) {
+                // JSON verisini güncelle
+                setState(() {
+                  // Oda referansı üzerinden cihazı bul ve durumunu değiştir
+                  final room = device['room'];
+                  final devices = room['devices'] as List;
+                  final targetDevice = devices.firstWhere(
+                          (d) => d['name'] == device['name']); // Doğru cihazı bul
+                  targetDevice['is_on'] = newStatus; // JSON verisini güncelle
+                });
               },
-              child: Text("Detaylara Git"),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

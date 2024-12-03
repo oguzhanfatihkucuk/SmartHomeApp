@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../Services/SharedPreferences.dart';
 
+import '../../Services/SharedPreferences.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -28,6 +28,21 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _loginWithGoogle() {
+    // Google ile giriş işlemi
+    context.go('/main');
+  }
+
+  void _loginWithApple() {
+    // Apple ile giriş işlemi
+    context.go('/main');
+  }
+
+  void _loginWithGmail() {
+    // Gmail ile giriş işlemi
+    context.go('/main');
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthModel>(context);
@@ -46,10 +61,23 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Image.asset(
+              'lib/assets/logo/img.png',
+              width: 100,
+              height: 100,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 30),
             TextField(
               controller: _usernameController,
               decoration: InputDecoration(
                 labelText: 'Kullanıcı Adı',
+                filled: true,
+                fillColor: Colors.grey.shade200,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             SizedBox(height: 10),
@@ -58,6 +86,12 @@ class _LoginScreenState extends State<LoginScreen> {
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Şifre',
+                filled: true,
+                fillColor: Colors.grey.shade200,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             if (_errorMessage != null)
@@ -71,9 +105,68 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _login(context),
-              child: Text('Giriş Yap'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF34E0A1),
+                minimumSize: Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text('Giriş Yap', style: TextStyle(fontSize: 16)),
+            ),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 10),
+            const Text(
+              'Veya ile giriş yapın:',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildSocialLoginButton(
+                  icon: Icons.email,
+                  label: 'Gmail',
+                  color: Colors.red,
+                  onTap: _loginWithGmail,
+                ),
+                _buildSocialLoginButton(
+                  icon: Icons.apple,
+                  label: 'Apple',
+                  color: Colors.black,
+                  onTap: _loginWithApple,
+                ),
+                _buildSocialLoginButton(
+                  icon: Icons.g_translate,
+                  label: 'Google',
+                  color: Colors.blue,
+                  onTap: _loginWithGoogle,
+                ),
+              ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSocialLoginButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 20),
+      label: Text(label, style: TextStyle(fontSize: 14)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        minimumSize: Size(100, 40),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );

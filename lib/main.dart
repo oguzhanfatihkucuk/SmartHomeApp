@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'Screens/LoginScreen//LoginScreen.dart';
+import 'Screens/LoginScreen/LoginScreen.dart';
 import 'Screens/MainScreen/MainScreen.dart';
 import 'Services/SharedPreferences.dart';
 
@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routerConfig: _router,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

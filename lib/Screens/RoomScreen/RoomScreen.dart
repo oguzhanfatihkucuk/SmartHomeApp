@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../assests/RoomsList.dart';
+import '../../assets/RoomsList.dart';
 import 'RoomsDetails.dart';
 import '../../Components/RoomAddForm.dart';
 

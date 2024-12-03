@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../HomeScreen//HomeScreen.dart';
-import '../RoomScreen//RoomScreen.dart';
-import '../SettingsScreen//SettingsScreen.dart';
+import '../HomeScreen/HomeScreen.dart';
+import '../RoomScreen/RoomScreen.dart';
+import '../SettingsScreen/SettingsScreen.dart';
 
 class MainScreen extends StatefulWidget {
   @override

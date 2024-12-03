@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../Components/DeviceCard.dart';
-import '../../assests/RoomsList.dart';
+import '../../assets/RoomsList.dart';
 
 class HomeScreen extends StatefulWidget {
   @override

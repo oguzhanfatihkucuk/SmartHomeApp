@@ -41,43 +41,45 @@ class _DeviceCardState extends State<DeviceCard> {
         widget.onToggle(isOn);
       },
       borderRadius: BorderRadius.circular(12),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
+
+      child: Container(
+        height: 150, // Yükseklik
+        width: 200,  // Genişlik
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
+
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                widget.icon,
-                size: 48,
-                color: isOn ? Colors.green : Colors.blue, // Duruma göre renk değişir
-              ),
-              const SizedBox(height: 8),
-              Text(
-                widget.name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  widget.icon,
+                  size: 48,
+                  color: isOn ? Colors.green : Colors.grey,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "Oda: ${widget.roomName}",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
+                const SizedBox(height: 8),
+                Text(
+                  widget.name,
+                  style: TextStyle(
+                    color: isOn ? Colors.green : Colors.grey,
+                    fontSize: 22,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                const SizedBox(height: 4),
+              ],
+            ),
           ),
         ),
-      ),
+      )
+
     );
   }
 }

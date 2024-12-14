@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text('Giriş Yap')),
+      appBar: AppBar(title: Text('Giriş Yap',)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -94,14 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            if (_errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Text(
-                  _errorMessage!,
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _login(context),

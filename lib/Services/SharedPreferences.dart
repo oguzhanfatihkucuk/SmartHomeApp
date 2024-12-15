@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthModel extends ChangeNotifier {
   bool _isLoggedIn = false;
@@ -16,14 +17,31 @@ class AuthModel extends ChangeNotifier {
     notifyListeners(); // Durumu bildir
   }
 
-  Future<void> login(String username, String password) async {
-    if (username == "admin" && password == "1234") {
-      _isLoggedIn = true;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true); // Giriş durumunu kaydet
-      notifyListeners();
-    } else {
-      throw Exception("Kullanıcı adı veya şifre hatalı");
+  Future<void> login(String email, String password) async {
+    try {
+
+      // Firebase Authentication ile giriş yap
+      final UserCredential credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+
+      if (credential.user != null) {
+        _isLoggedIn = true; // Giriş başarılı, durumu güncelle
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true); // Giriş durumunu kaydet
+        notifyListeners();
+      }
+
+    } on FirebaseAuthException catch (e) {
+      // Firebase Authentication'dan gelen hataları işleyin
+      if (e.code == 'user-not-found') {
+        throw Exception("Kullanıcı bulunamadı.");
+      } else if (e.code == 'wrong-password') {
+        throw Exception("Şifre hatalı.");
+      } else {
+        throw Exception("Bir hata oluştu: ${e.message}");
+      }
+    } catch (e) {
+      throw Exception("Bir hata oluştu: $e");
     }
   }
 

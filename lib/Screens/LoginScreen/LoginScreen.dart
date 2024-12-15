@@ -15,15 +15,34 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   String? _errorMessage;
 
+  bool _isLoading = false; // Yüklenme durumu
+
   void _login(BuildContext context) async {
+
     final auth = Provider.of<AuthModel>(context, listen: false);
+
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      setState(() {
+        _errorMessage = "E-posta ve şifre boş olamaz.";
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null; // Eski hatayı sıfırla
+    });
 
     try {
       await auth.login(_usernameController.text, _passwordController.text);
-      context.go('/main'); // Başarılı girişte Ana Ekrana yönlendir
+      context.go('/main'); // Başarılı girişte yönlendirme
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = e.toString(); // Hata mesajını sakla
+      });
+    } finally {
+      setState(() {
+        _isLoading = false; // İşlem tamamlandığında yüklenme durumunu kapat
       });
     }
   }

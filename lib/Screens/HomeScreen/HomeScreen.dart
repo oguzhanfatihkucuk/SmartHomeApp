@@ -118,7 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Ana Sayfa')),
-      body: ListView.builder(
+      body: rooms.isEmpty
+          ? Center(child: CircularProgressIndicator()) // Veri yükleniyorsa gösterilecek widget
+          :ListView.builder(
         itemCount: rooms.length,
         itemBuilder: (context, roomIndex) {
           final room = rooms[roomIndex];

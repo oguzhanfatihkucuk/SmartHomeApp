@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class DeviceCard extends StatefulWidget {
+class DeviceCard extends StatelessWidget {
   final String name;
-  final IconData icon;
+  final String icon;
   final String roomName;
-  final bool initialStatus; // Başlangıç durumu
-  final void Function(bool newStatus) onToggle; // Güncelleme işlemini bildirmek için callback
+  final bool initialStatus;
+  final Function(bool) onToggle;
 
   const DeviceCard({
     Key? key,
@@ -17,69 +17,42 @@ class DeviceCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _DeviceCardState createState() => _DeviceCardState();
-}
-
-class _DeviceCardState extends State<DeviceCard> {
-  late bool isOn;
-
-  @override
-  void initState() {
-    super.initState();
-    isOn = widget.initialStatus; // Başlangıç durumu
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          isOn = !isOn; // Görünür durumu güncelle
-        });
-
-        // JSON verisindeki durumu güncellemek için callback'i çağır
-        widget.onToggle(isOn);
-      },
-      borderRadius: BorderRadius.circular(12),
-
-      child: Container(
-        height: 150, // Yükseklik
-        width: 200,  // Genişlik
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-
+    return Card(
+      child: InkWell(
+        onTap: () {
+          onToggle(!initialStatus);
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(_getIconData(icon)),
+            Text(name),
+            Text('Room: $roomName'),
+          ],
         ),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  widget.icon,
-                  size: 48,
-                  color: isOn ? Colors.green : Colors.grey,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.name,
-                  style: TextStyle(
-                    color: isOn ? Colors.green : Colors.grey,
-                    fontSize: 22,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-              ],
-            ),
-          ),
-        ),
-      )
-
+      ),
     );
   }
+
+  IconData _getIconData(String iconName) {
+    switch (iconName) {
+      case "Icons.ac_unit":
+        return Icons.ac_unit;
+      case "Icons.tv":
+        return Icons.tv;
+      case "Icons.lightbulb":
+        return Icons.lightbulb;
+      case "Icons.window":
+        return Icons.window;
+      case "Icons.alarm":
+        return Icons.alarm;
+      case "Icons.phone_android":
+        return Icons.phone_android;
+      default:
+        return Icons.device_unknown; // Varsayılan ikon
+    }
+  }
+
 }
+

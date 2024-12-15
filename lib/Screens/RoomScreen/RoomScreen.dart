@@ -1,5 +1,9 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import '../../assets/RoomsList.dart';
+import '../../models/DeviceModel/DeviceModel.dart';
+import '../../models/RoomModel/RoomModel.dart';
 import 'RoomsDetails.dart';
 import '../../Components/RoomAddForm.dart';
 
@@ -9,37 +13,35 @@ class RoomScreen extends StatefulWidget {
 }
 
 class _RoomScreenState extends State<RoomScreen> {
-  late List<Map<String, dynamic>> roomList;
+  late List<Room> rooms = [];
+
+  final database = FirebaseDatabase.instanceFor(
+    app: Firebase.app(),
+    databaseURL: 'https://smarthomeapp-ed852-default-rtdb.asia-southeast1.firebasedatabase.app',
+  );
 
   @override
   void initState() {
     super.initState();
-    roomList = List.from(rooms); // Başlangıçta `rooms` listesinin bir kopyasını al
+    _fetchRooms();
   }
 
-  void _showAddRoomForm() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AddRoomForm(
-          onRoomAdded: (String name, String image, int deviceCount) {
-            setState(() {
-              roomList.add({
-                "name": name,
-                "image": image,
-                "devices": List.generate(
-                  deviceCount,
-                      (index) => {
-                    "name": "Cihaz ${index + 1}",
-                    "icon": Icons.device_hub,
-                  },
-                ),
-              });
-            });
-          },
-        );
-      },
-    );
+  // Firebase'den odaları çekme
+  Future<void> _fetchRooms() async {
+    try {
+      final snapshot = await database.ref('rooms').once();
+      final data = snapshot.snapshot.value as Map<dynamic, dynamic>;
+
+      setState(() {
+        rooms = data.entries.map((entry) {
+          final roomData = entry.value as Map<dynamic, dynamic>;
+          return Room.fromJson(roomData);
+        }).toList();
+      });
+    } catch (e) {
+      print('Error fetching rooms: $e');
+      // Hata durumunda yapılacak işlemleri buraya ekleyebilirsiniz
+    }
   }
 
   @override
@@ -50,26 +52,28 @@ class _RoomScreenState extends State<RoomScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: _showAddRoomForm, // Yeni fonksiyon
+            onPressed: _showAddRoomForm,
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: roomList.length,
+      body: rooms.isEmpty
+          ? Center(child: CircularProgressIndicator()) // Veri yükleniyorsa gösterilecek widget
+          : ListView.builder(
+        itemCount: rooms.length,
         itemBuilder: (context, index) {
-          final room = roomList[index];
+          final room = rooms[index];
           return GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => RoomDetailScreen(
-                    roomName: room["name"],
-                    roomImage: room["image"],
-                    devices: room["devices"],
+                    roomName: room.name,
+                    roomImage: room.image,
+                    devices: room.devices,
                     onDelete: () {
                       setState(() {
-                        roomList.removeAt(index);
+                        rooms.removeAt(index);
                       });
                     },
                   ),
@@ -91,7 +95,7 @@ class _RoomScreenState extends State<RoomScreen> {
                         top: Radius.circular(12),
                       ),
                       child: Image.network(
-                        room["image"],
+                        room.image,
                         height: 150,
                         width: double.infinity,
                         fit: BoxFit.cover,
@@ -100,7 +104,7 @@ class _RoomScreenState extends State<RoomScreen> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        room["name"],
+                        room.name,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -112,16 +116,16 @@ class _RoomScreenState extends State<RoomScreen> {
                       child: Row(
                         children: [
                           Text(
-                            "${room["devices"].length} cihaz",
+                            "${room.devices.length} cihaz",
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey.shade600,
                             ),
                           ),
                           const Spacer(),
-                          ...room["devices"]
+                          ...room.devices
                               .map((device) => Icon(
-                            device["icon"],
+                            Icons.device_hub,
                             color: Colors.blue,
                           ))
                               .toList(),
@@ -135,7 +139,33 @@ class _RoomScreenState extends State<RoomScreen> {
           );
         },
       ),
+    );
+  }
 
+  // Oda ekleme formunu gösteren fonksiyon
+  void _showAddRoomForm() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AddRoomForm(
+          onRoomAdded: (String name, String image, int deviceCount) {
+            setState(() {
+              rooms.add(Room(
+                name: name,
+                image: image,
+                devices: List.generate(
+                  deviceCount,
+                      (index) => Device(
+                    name: "Cihaz ${index + 1}",
+                    icon: "Icons.device_hub", // İconlar burada dinamik olabilir
+                    isOn: false,
+                  ),
+                ),
+              ));
+            });
+          },
+        );
+      },
     );
   }
 }

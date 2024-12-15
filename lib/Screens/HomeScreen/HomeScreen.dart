@@ -1,11 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import '../../assets/RoomsList.dart';
 import '../../Components/DeviceCard.dart';
+import 'package:firebase_database/firebase_database.dart';
+import '../../models/RoomModel/RoomModel.dart';
 
-void main() {
-  runApp(const MyApp());
-}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -20,13 +19,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  stt.SpeechToText _speech = stt.SpeechToText();
+  final stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
   String _command = "";
 
@@ -41,6 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
       _speech.listen(
         onResult: (result) {
           _processCommand(result.recognizedWords);
+          setState(() {
+            _isListening = false;
+          });
         },
       );
     }
@@ -52,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _isListening = false;
     });
-
   }
 
   // Komutları işleme
@@ -61,22 +63,54 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _command = "I have turned on the lights.";
       });
-      print("I have turned on the lights.");
+      print(_command);
     } else if (command.contains("turn off the lights")) {
       setState(() {
         _command = "I have turned off the lights.";
       });
-      print("I have turned off the lights.");
+      print(_command);
     } else if (command.contains("turn on the TV")) {
       setState(() {
         _command = "I have turned on the TV.";
       });
-      print("I have turned on the TV.");
+      print(_command);
     } else {
       setState(() {
         _command = "Komut anlaşılamadı.";
       });
-      print("Komut anlaşılamadı.");
+      print(_command);
+    }
+  }
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRooms();
+  }
+
+  final database = FirebaseDatabase.instanceFor(
+    app: Firebase.app(),
+    databaseURL:
+    'https://smarthomeapp-ed852-default-rtdb.asia-southeast1.firebasedatabase.app',
+  );
+  List<Room> rooms = [];
+
+  Future<void> _fetchRooms() async {
+    try {
+      final snapshot = await database.ref('rooms').once();
+      final data = snapshot.snapshot.value as Map<dynamic, dynamic>;
+
+      setState(() {
+        rooms = data.entries.map((entry) {
+          final roomData = entry.value as Map<dynamic, dynamic>;
+          return Room.fromJson(roomData);
+        }).toList();
+      });
+    } catch (e) {
+      print('Error fetching rooms: $e');
+      // Handle the error appropriately (e.g., show an error message to the user)
     }
   }
 
@@ -88,35 +122,33 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: rooms.length,
         itemBuilder: (context, roomIndex) {
           final room = rooms[roomIndex];
-          final roomDevices = room['devices'] as List;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  room['name'],
+                  room.name,
                   style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
+              //Image.network(room.image),
               SizedBox(
                 height: 200,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: roomDevices.length,
+                  itemCount: room.devices.length,
                   itemBuilder: (context, deviceIndex) {
-                    final device = roomDevices[deviceIndex];
+                    final device = room.devices[deviceIndex];
                     return DeviceCard(
-                      name: device["name"],
-                      icon: device["icon"],
-                      roomName: room['name'],
-                      initialStatus: device["is_on"],
+                      name: device.name,
+                      icon: device.icon,
+                      roomName: room.name,
+                      initialStatus: device.isOn,
                       onToggle: (newStatus) {
                         setState(() {
-                          device['is_on'] = newStatus;
+                          device.isOn = newStatus;
                         });
                       },
                     );
@@ -132,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: <Widget>[
           FloatingActionButton(
             onPressed: () {
-              _isListening ?  _stopListening():_startListening() ;
+              _isListening ?  _stopListening() : _startListening() ;
             },
             child: Icon(_isListening ? Icons.mic : Icons.mic_off),
             backgroundColor: Colors.blue,
@@ -142,3 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
+
+
+

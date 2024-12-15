@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../Components/RoomsCard.dart';
+import '../../models/DeviceModel/DeviceModel.dart';
 
 class RoomDetailScreen extends StatelessWidget {
   final String roomName;
   final String roomImage;
-  final List<Map<String, dynamic>> devices;
+  final List<Device> devices;
   final VoidCallback onDelete; // Silme işlemi sonrası çağrılacak fonksiyon
 
   const RoomDetailScreen({
@@ -64,12 +65,12 @@ class RoomDetailScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final device = devices[index];
                   return DeviceCard(
-                    name: device['name'],
-                    icon: device['icon'],
-                    isInitiallyOn: device['is_on'],
+                    name: device.name,
+                    icon: _getIconData(device.icon),
+                    isInitiallyOn: device.isOn,
                     onToggle: (bool newValue) {
                       // Cihaz durumu değiştiğinde listeyi güncelle
-                      devices[index]['is_on'] = newValue;
+                      devices[index].isOn = newValue;
                     },
                   );
                 },
@@ -81,6 +82,24 @@ class RoomDetailScreen extends StatelessWidget {
     );
   }
 
+  IconData _getIconData(String iconName) {
+    switch (iconName) {
+      case "Icons.ac_unit":
+        return Icons.ac_unit;
+      case "Icons.tv":
+        return Icons.tv;
+      case "Icons.lightbulb":
+        return Icons.lightbulb;
+      case "Icons.window":
+        return Icons.window;
+      case "Icons.alarm":
+        return Icons.alarm;
+      case "Icons.phone_android":
+        return Icons.phone_android;
+      default:
+        return Icons.device_unknown; // Varsayılan ikon
+    }
+  }
   void _showDeleteConfirmation(BuildContext context) {
     showDialog(
       context: context,

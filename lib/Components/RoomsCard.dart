@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class DeviceCard extends StatefulWidget {
+class RoomsCard extends StatefulWidget {
   final String name;
   final IconData icon;
   final bool isInitiallyOn; // Başlangıç durumu
   final ValueChanged<bool>
       onToggle; // Dışarıya durum değişikliğini iletmek için callback
 
-  const DeviceCard({
+  const RoomsCard({
     Key? key,
     required this.name,
     required this.icon,
@@ -20,7 +20,7 @@ class DeviceCard extends StatefulWidget {
   _DeviceCardState createState() => _DeviceCardState();
 }
 
-class _DeviceCardState extends State<DeviceCard> {
+class _DeviceCardState extends State<RoomsCard> {
   late bool isOn;
 
   @override

@@ -64,7 +64,7 @@ class RoomDetailScreen extends StatelessWidget {
                 itemCount: devices.length,
                 itemBuilder: (context, index) {
                   final device = devices[index];
-                  return DeviceCard(
+                  return RoomsCard(
                     name: device.name,
                     icon: _getIconData(device.icon),
                     isInitiallyOn: device.isOn,

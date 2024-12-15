@@ -121,10 +121,11 @@ class _RoomScreenState extends State<RoomScreen> {
                               color: Colors.grey.shade600,
                             ),
                           ),
+
                           const Spacer(),
                           ...room.devices
                               .map((device) => Icon(
-                            Icons.device_hub,
+                            _getIconData(device.icon),
                             color: Colors.blue,
                           ))
                               .toList(),
@@ -166,5 +167,23 @@ class _RoomScreenState extends State<RoomScreen> {
         );
       },
     );
+  }
+}
+IconData _getIconData(String iconName) {
+  switch (iconName) {
+    case "Icons.ac_unit":
+      return Icons.ac_unit;
+    case "Icons.tv":
+      return Icons.tv;
+    case "Icons.lightbulb":
+      return Icons.lightbulb;
+    case "Icons.window":
+      return Icons.window;
+    case "Icons.alarm":
+      return Icons.alarm;
+    case "Icons.phone_android":
+      return Icons.phone_android;
+    default:
+      return Icons.device_unknown; // Varsayılan ikon
   }
 }

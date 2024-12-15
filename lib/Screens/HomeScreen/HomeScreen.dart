@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
-import '../../Components/DeviceCard.dart';
-import '../../assets/RoomsList.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import '../../assets/RoomsList.dart';
+import '../../Components/DeviceCard.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Smart Home Control',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: HomeScreen(),
+    );
+  }
+}
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -13,33 +30,19 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isListening = false;
   String _command = "";
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   // Sesli komutları başlatma
   void _startListening() async {
     bool available = await _speech.initialize();
+
     if (available) {
       setState(() {
         _isListening = true;
-        _command = "Sesli komut alınıyor...";
       });
       _speech.listen(
         onResult: (result) {
-          setState(() {
-            _command = result.recognizedWords;
-          });
           _processCommand(result.recognizedWords);
         },
       );
-    } else {
-      setState(() {
-        _isListening = false;
-        _command = "Sesli komut özelliği aktif değil.";
-      });
-      print("Sesli komut özelliği aktif değil.");
     }
   }
 
@@ -49,48 +52,50 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _isListening = false;
     });
+
   }
 
-  // Komutları işleme (örneğin cihazları açma/kapama)
+  // Komutları işleme
   void _processCommand(String command) {
-    // Komutlara göre işlemler
     if (command.contains("turn on the lights")) {
       setState(() {
         _command = "I have turned on the lights.";
       });
+      print("I have turned on the lights.");
     } else if (command.contains("turn off the lights")) {
       setState(() {
         _command = "I have turned off the lights.";
       });
-    } else if (command.contains("turn on the tv")) {
+      print("I have turned off the lights.");
+    } else if (command.contains("turn on the TV")) {
       setState(() {
         _command = "I have turned on the TV.";
       });
+      print("I have turned on the TV.");
     } else {
       setState(() {
         _command = "Komut anlaşılamadı.";
       });
+      print("Komut anlaşılamadı.");
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Ana Sayfa')),
       body: ListView.builder(
-        itemCount: rooms.length, // Her oda için bir liste oluştur
+        itemCount: rooms.length,
         itemBuilder: (context, roomIndex) {
           final room = rooms[roomIndex];
-          final roomDevices = room['devices'] as List; // Odanın cihazları
+          final roomDevices = room['devices'] as List;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  room['name'], // Oda adı
+                  room['name'],
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -98,9 +103,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SizedBox(
-                height: 200, // Kartların yüksekliği
+                height: 200,
                 child: ListView.builder(
-                  scrollDirection: Axis.horizontal, // Yatay kaydırma
+                  scrollDirection: Axis.horizontal,
                   itemCount: roomDevices.length,
                   itemBuilder: (context, deviceIndex) {
                     final device = roomDevices[deviceIndex];
@@ -110,9 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       roomName: room['name'],
                       initialStatus: device["is_on"],
                       onToggle: (newStatus) {
-                        // JSON verisini güncelle
                         setState(() {
-                          device['is_on'] = newStatus; // Cihaz durumunu güncelle
+                          device['is_on'] = newStatus;
                         });
                       },
                     );
@@ -123,18 +127,14 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      floatingActionButton: Row(
+      bottomSheet: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           FloatingActionButton(
             onPressed: () {
-              // Print the command and listening status when the button is pressed
-              print("Command: $_command, Listening: $_isListening");
-
-              // Start/Stop listening depending on the state
-              _isListening ? _stopListening() : _startListening();
+              _isListening ?  _stopListening():_startListening() ;
             },
-            child: Icon(_isListening ? Icons.mic_off : Icons.mic),
+            child: Icon(_isListening ? Icons.mic : Icons.mic_off),
             backgroundColor: Colors.blue,
           ),
         ],

@@ -1,12 +1,35 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../Components/RoomsCard.dart';
 import '../../models/DeviceModel/DeviceModel.dart';
 
-class RoomDetailScreen extends StatelessWidget {
+final database = FirebaseDatabase.instanceFor(
+  app: Firebase.app(),
+  databaseURL: 'https://smarthomeapp-ed852-default-rtdb.asia-southeast1.firebasedatabase.app',
+);
+
+Future<void> updateDeviceStatus(String roomId, int deviceIndex, bool newStatus) async {
+
+  try {
+    // Firebase yolunu belirle
+    final devicePath = 'rooms/$roomId/devices/$deviceIndex/isOn';
+
+    // Güncelleme işlemi
+    await database.ref(devicePath).set(newStatus);
+
+    print('Cihaz durumu başarıyla güncellendi.');
+  } catch (e) {
+    print('Hata: Cihaz durumu güncellenemedi: $e');
+  }
+}
+
+class RoomDetailScreen extends StatefulWidget {
   final String roomName;
   final String roomImage;
   final List<Device> devices;
-  final VoidCallback onDelete; // Silme işlemi sonrası çağrılacak fonksiyon
+  final VoidCallback onDelete;
 
   const RoomDetailScreen({
     Key? key,
@@ -17,24 +40,29 @@ class RoomDetailScreen extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _RoomDetailScreenState createState() => _RoomDetailScreenState();
+}
+
+class _RoomDetailScreenState extends State<RoomDetailScreen> {
+  late List<Device> devices; // Lokal olarak güncellenebilir cihaz listesi
+
+  @override
+  void initState() {
+    super.initState();
+    devices = List.from(widget.devices); // Orijinal cihaz listesini kopyala
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(roomName),
+        title: Text(widget.roomName),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () {
-              _showDeleteConfirmation(context);
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -45,7 +73,7 @@ class RoomDetailScreen extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  roomImage,
+                  widget.roomImage,
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -54,8 +82,8 @@ class RoomDetailScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 "Cihazlar (${devices.length})",
-                style:
-                const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               ListView.builder(
@@ -68,9 +96,19 @@ class RoomDetailScreen extends StatelessWidget {
                     name: device.name,
                     icon: _getIconData(device.icon),
                     isInitiallyOn: device.isOn,
-                    onToggle: (bool newValue) {
-                      // Cihaz durumu değiştiğinde listeyi güncelle
-                      devices[index].isOn = newValue;
+                    onToggle: (bool newValue) async {
+                      try {
+                        updateDeviceStatus(device.roomId,device.id,newValue);
+
+                        // Local listeyi güncelle
+                        setState(() {
+                          devices[index].isOn = newValue;
+                        });
+
+                        //print('Cihaz durumu başarıyla güncellendi.');
+                      } catch (e) {
+                        //print('Hata: Cihaz durumu güncellenemedi: $e');
+                      }
                     },
                   );
                 },
@@ -81,53 +119,26 @@ class RoomDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  IconData _getIconData(String iconName) {
-    switch (iconName) {
-      case "Icons.ac_unit":
-        return Icons.ac_unit;
-      case "Icons.tv":
-        return Icons.tv;
-      case "Icons.lightbulb":
-        return Icons.lightbulb;
-      case "Icons.window":
-        return Icons.window;
-      case "Icons.alarm":
-        return Icons.alarm;
-      case "Icons.phone_android":
-        return Icons.phone_android;
-      default:
-        return Icons.device_unknown; // Varsayılan ikon
-    }
-  }
-  void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Odayı Sil"),
-          content: const Text("Bu odayı silmek istediğinizden emin misiniz?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Onay verilmezse diyalog kapatılır
-              },
-              child: const Text("İptal"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                onDelete(); // Silme işlemini tetikleyerek listeyi güncelle
-                Navigator.pop(context); // Diyalog kapatılır
-                Navigator.pop(context); // Detay sayfası kapatılır
-              },
-              child: const Text("Sil"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
-            ),
-          ],
-        );
-      },
-    );
+// Firebase'deki cihaz durumunu güncelle
+
+
+IconData _getIconData(String iconName) {
+  switch (iconName) {
+    case "Icons.ac_unit":
+      return Icons.ac_unit;
+    case "Icons.tv":
+      return Icons.tv;
+    case "Icons.lightbulb":
+      return Icons.lightbulb;
+    case "Icons.window":
+      return Icons.window;
+    case "Icons.alarm":
+      return Icons.alarm;
+    case "Icons.phone_android":
+      return Icons.phone_android;
+    default:
+      return Icons.device_unknown; // Varsayılan ikon
   }
 }

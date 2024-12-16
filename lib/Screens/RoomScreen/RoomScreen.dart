@@ -1,10 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import '../../models/DeviceModel/DeviceModel.dart';
 import '../../models/RoomModel/RoomModel.dart';
 import 'RoomsDetails.dart';
-import '../../Components/RoomAddForm.dart';
+
 
 class RoomScreen extends StatefulWidget {
   @override
@@ -16,7 +15,8 @@ class _RoomScreenState extends State<RoomScreen> {
 
   final database = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
-    databaseURL: 'https://smarthomeapp-ed852-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://smarthomeapp-ed852-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   @override
@@ -48,142 +48,112 @@ class _RoomScreenState extends State<RoomScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Odalarım"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _showAddRoomForm,
-          ),
-        ],
       ),
       body: rooms.isEmpty
-          ? Center(child: CircularProgressIndicator()) // Veri yükleniyorsa gösterilecek widget
+          ? Center(
+              child:
+                  CircularProgressIndicator()) // Veri yükleniyorsa gösterilecek widget
           : ListView.builder(
-        itemCount: rooms.length,
-        itemBuilder: (context, index) {
-          final room = rooms[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RoomDetailScreen(
-                    roomName: room.name,
-                    roomImage: room.image,
-                    devices: room.devices,
-                    onDelete: () {
-                      setState(() {
-                        rooms.removeAt(index);
-                      });
-                    },
-                  ),
-                ),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(12),
-                      ),
-                      child: Image.network(
-                        room.image,
-                        height: 150,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        room.name,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+              itemCount: rooms.length,
+              itemBuilder: (context, index) {
+                final room = rooms[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RoomDetailScreen(
+                          roomName: room.name,
+                          roomImage: room.image,
+                          devices: room.devices,
+                          onDelete: () {
+                            setState(() {
+                              rooms.removeAt(index);
+                            });
+                          },
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Row(
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "${room.devices.length} cihaz",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey.shade600,
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(12),
+                            ),
+                            child: Image.network(
+                              room.image,
+                              height: 150,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
                             ),
                           ),
-
-                          const Spacer(),
-                          ...room.devices
-                              .map((device) => Icon(
-                            _getIconData(device.icon),
-                            color: Colors.blue,
-                          ))
-                              .toList(),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              room.name,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "${room.devices.length} cihaz",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                                const Spacer(),
+                                ...room.devices
+                                    .map((device) => Icon(
+                                          _getIconData(device.icon),
+                                          color: Colors.blue,
+                                        ))
+                                    .toList(),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 
-  // Oda ekleme formunu gösteren fonksiyon
-  void _showAddRoomForm() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AddRoomForm(
-          onRoomAdded: (String name, String image, int deviceCount) {
-            setState(() {
-              rooms.add(Room(
-                name: name,
-                image: image,
-                devices: List.generate(
-                  deviceCount,
-                      (index) => Device(
-                    name: "Cihaz ${index + 1}",
-                    icon: "Icons.device_hub", // İconlar burada dinamik olabilir
-                    isOn: false,
-                  ),
-                ),
-              ));
-            });
-          },
-        );
-      },
-    );
-  }
-}
-IconData _getIconData(String iconName) {
-  switch (iconName) {
-    case "Icons.ac_unit":
-      return Icons.ac_unit;
-    case "Icons.tv":
-      return Icons.tv;
-    case "Icons.lightbulb":
-      return Icons.lightbulb;
-    case "Icons.window":
-      return Icons.window;
-    case "Icons.alarm":
-      return Icons.alarm;
-    case "Icons.phone_android":
-      return Icons.phone_android;
-    default:
-      return Icons.device_unknown; // Varsayılan ikon
+  IconData _getIconData(String iconName) {
+    switch (iconName) {
+      case "Icons.ac_unit":
+        return Icons.ac_unit;
+      case "Icons.tv":
+        return Icons.tv;
+      case "Icons.lightbulb":
+        return Icons.lightbulb;
+      case "Icons.window":
+        return Icons.window;
+      case "Icons.alarm":
+        return Icons.alarm;
+      case "Icons.phone_android":
+        return Icons.phone_android;
+      default:
+        return Icons.device_unknown; // Varsayılan ikon
+    }
   }
 }

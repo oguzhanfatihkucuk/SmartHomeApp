@@ -144,15 +144,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (context, deviceIndex) {
                     final device = room.devices[deviceIndex];
                     return DeviceCard(
+                      isOn:device.isOn,
                       name: device.name,
                       icon: device.icon,
                       roomName: room.name,
                       initialStatus: device.isOn,
-                      onToggle: (newStatus) {
-                        setState(() {
-                          device.isOn = newStatus;
-                        });
-                      },
                     );
                   },
                 ),

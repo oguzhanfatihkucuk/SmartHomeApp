@@ -150,6 +150,16 @@ class _RoomScreenState extends State<RoomScreen> {
         return Icons.window;
       case "Icons.alarm":
         return Icons.alarm;
+      case "Icons.computer":
+        return Icons.computer;
+      case "Icons.kitchen":
+        return Icons.kitchen;
+      case "Icons.microwave":
+        return Icons.microwave;
+      case "Icons.blender":
+        return Icons.blender;
+      case "Icons.insert_drive_file":
+        return Icons.insert_drive_file;
       case "Icons.phone_android":
         return Icons.phone_android;
       default:

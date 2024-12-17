@@ -170,13 +170,13 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: isProcessing
                 ? null // İşlem sırasında butonu devre dışı bırak
                 : () async => await turnOffAllDevices(false),
-            icon: Icon(Icons.delete),
+            icon: Icon(Icons.flash_off),
           ),
           IconButton(
             onPressed: isProcessing
                 ? null // İşlem sırasında butonu devre dışı bırak
                 : () async => await turnOffAllDevices(true),
-            icon: Icon(Icons.start),
+            icon: Icon(Icons.flash_on),
           ),
         ],
       ),

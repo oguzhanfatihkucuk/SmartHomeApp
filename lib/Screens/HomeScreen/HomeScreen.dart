@@ -5,7 +5,6 @@ import '../../Components/DeviceCard.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../../models/RoomModel/RoomModel.dart';
 
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -19,7 +18,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -29,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
   String _command = "";
+  bool isProcessing = false; // İşlem durumu için bir değişken
 
   // Sesli komutları başlatma
   void _startListening() async {
@@ -82,8 +81,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
-
   @override
   void initState() {
     super.initState();
@@ -93,8 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final database = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL:
-    'https://smarthomeapp-ed852-default-rtdb.asia-southeast1.firebasedatabase.app',
+        'https://smarthomeapp-ed852-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
+
   List<Room> rooms = [];
 
   Future<void> _fetchRooms() async {
@@ -114,55 +112,122 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> turnOffAllDevices(bool statusOfDevices) async {
+    try {
+      setState(() {
+        isProcessing = true; // İşlem başladı
+      });
+
+      // Rooms path'i
+      final roomsPath = 'rooms';
+
+      // Firebase'den odaları al
+      final roomsSnapshot = await database.ref(roomsPath).get();
+
+      if (roomsSnapshot.exists) {
+        // Rooms Map'ini al
+        final rooms = roomsSnapshot.value as Map;
+
+        // Her oda için döngü
+        for (final roomId in rooms.keys) {
+          // Odaya ait devices listesi
+          final devicesPath = 'rooms/$roomId/devices';
+          final devicesSnapshot = await database.ref(devicesPath).get();
+
+          if (devicesSnapshot.exists) {
+            final devices = devicesSnapshot.value as List;
+
+            // Her cihazın isOn durumunu güncelle
+            for (int deviceIndex = 0;
+                deviceIndex < devices.length;
+                deviceIndex++) {
+              final devicePath = '$devicesPath/$deviceIndex/isOn';
+              await database.ref(devicePath).set(statusOfDevices);
+
+              _fetchRooms();
+            }
+          }
+        }
+      }
+
+      print("Tüm cihazlar başarıyla güncellendi.");
+    } catch (e) {
+      print("Hata: $e");
+    } finally {
+      setState(() {
+        isProcessing = false; // İşlem tamamlandı
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ana Sayfa')),
+      appBar: AppBar(
+        title: const Text('Ana Sayfa'),
+        actions: [
+          IconButton(
+            onPressed: isProcessing
+                ? null // İşlem sırasında butonu devre dışı bırak
+                : () async => await turnOffAllDevices(false),
+            icon: Icon(Icons.delete),
+          ),
+          IconButton(
+            onPressed: isProcessing
+                ? null // İşlem sırasında butonu devre dışı bırak
+                : () async => await turnOffAllDevices(true),
+            icon: Icon(Icons.start),
+          ),
+        ],
+      ),
       body: rooms.isEmpty
-          ? Center(child: CircularProgressIndicator()) // Veri yükleniyorsa gösterilecek widget
-          :ListView.builder(
-        itemCount: rooms.length,
-        itemBuilder: (context, roomIndex) {
-          final room = rooms[roomIndex];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  room.name,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              //Image.network(room.image),
-              SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: room.devices.length,
-                  itemBuilder: (context, deviceIndex) {
-                    final device = room.devices[deviceIndex];
-                    return DeviceCard(
-                      isOn:device.isOn,
-                      name: device.name,
-                      icon: device.icon,
-                      roomName: room.name,
-                      initialStatus: device.isOn,
+          ? Center(
+              child:
+                  CircularProgressIndicator()) // Veri yükleniyorsa gösterilecek widget
+          : isProcessing
+              ? Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  itemCount: rooms.length,
+                  itemBuilder: (context, roomIndex) {
+                    final room = rooms[roomIndex];
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            room.name,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 200,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: room.devices.length,
+                            itemBuilder: (context, deviceIndex) {
+                              final device = room.devices[deviceIndex];
+                              return DeviceCard(
+                                isOn: device.isOn,
+                                name: device.name,
+                                icon: device.icon,
+                                roomName: room.name,
+                                initialStatus: device.isOn,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
-              ),
-            ],
-          );
-        },
-      ),
       bottomSheet: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           FloatingActionButton(
             onPressed: () {
-              _isListening ?  _stopListening() : _startListening() ;
+              _isListening ? _stopListening() : _startListening();
             },
             child: Icon(_isListening ? Icons.mic : Icons.mic_off),
             backgroundColor: Colors.blue,
@@ -172,7 +237,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-
-
-

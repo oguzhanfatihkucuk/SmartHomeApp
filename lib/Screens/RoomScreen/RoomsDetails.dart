@@ -15,7 +15,6 @@ Future<void> updateDeviceStatus(String roomId, int deviceIndex, bool newStatus) 
   try {
     // Firebase yolunu belirle
     final devicePath = 'rooms/$roomId/devices/$deviceIndex/isOn';
-
     // Güncelleme işlemi
     await database.ref(devicePath).set(newStatus);
 

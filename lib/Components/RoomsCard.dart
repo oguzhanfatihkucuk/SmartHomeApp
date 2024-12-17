@@ -5,8 +5,8 @@ class RoomsCard extends StatefulWidget {
   final String name;
   final IconData icon;
   final bool isInitiallyOn; // Başlangıç durumu
-  final ValueChanged<bool>
-      onToggle; // Dışarıya durum değişikliğini iletmek için callback
+  final ValueChanged<bool>onToggle; // Dışarıya durum değişikliğini iletmek için callback
+
 
   const RoomsCard({
     Key? key,

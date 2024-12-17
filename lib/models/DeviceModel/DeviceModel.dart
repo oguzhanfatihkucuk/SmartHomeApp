@@ -1,9 +1,9 @@
 class Device {
   final String name;
   final String icon;
+  final int id;
+  final String roomId;
   bool isOn;
-  int id;
-  String roomId;
 
   Device({
     required this.name,

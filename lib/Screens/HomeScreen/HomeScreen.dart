@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Sesli komutları başlatma
   void _startListening() async {
     bool available = await _speech.initialize();
-
+    print("Dinleme başlatıldı");
     if (available) {
       setState(() {
         _isListening = true;
@@ -40,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _speech.listen(
         onResult: (result) {
           _processCommand(result.recognizedWords);
+          print(result.recognizedWords);
           setState(() {
             _isListening = false;
           });
@@ -49,8 +50,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Dinlemeyi durdurma
-  void _stopListening() {
+  void _stopListening() async {
     _speech.stop();
+    print("Dinleme Durduruldu");
     setState(() {
       _isListening = false;
     });
@@ -59,26 +61,34 @@ class _HomeScreenState extends State<HomeScreen> {
   // Komutları işleme
   void _processCommand(String command) {
     if (command.contains("turn on the lights")) {
-      setState(() {
-        _command = "I have turned on the lights.";
+      setState(() async {
+        const devicePath = 'rooms/room1/devices/1/isOn';
+        await database.ref(devicePath).set(true);
       });
-      print(_command);
     } else if (command.contains("turn off the lights")) {
-      setState(() {
-        _command = "I have turned off the lights.";
+      setState(() async {
+        const devicePath = 'rooms/room1/devices/1/isOn';
+        await database.ref(devicePath).set(false);
       });
-      print(_command);
     } else if (command.contains("turn on the TV")) {
-      setState(() {
-        _command = "I have turned on the TV.";
+      setState(() async {
+        const devicePath = 'rooms/room1/devices/0/isOn';
+        await database.ref(devicePath).set(true);
       });
-      print(_command);
-    } else {
+    }
+    else if (command.contains("turn off the TV")) {
+      setState(() async{
+        const devicePath = 'rooms/room1/devices/0/isOn';
+        await database.ref(devicePath).set(false);
+      });
+    }
+    else {
       setState(() {
         _command = "Komut anlaşılamadı.";
       });
       print(_command);
     }
+    _fetchRooms();
   }
 
   @override

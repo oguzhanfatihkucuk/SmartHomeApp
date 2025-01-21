@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import '../../Services/SharedPreferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,9 +20,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final auth = Provider.of<AuthModel>(context, listen: false);
 
-    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+    if (_usernameController.text.isEmpty ) {
       setState(() {
-        _errorMessage = "E-posta ve şifre boş olamaz.";
+        _errorMessage = "E-posta boş olamaz.";
+      });
+      return;
+    }
+
+    if ( _passwordController.text.isEmpty) {
+      setState(() {
+        _errorMessage = "Şifre boş olamaz.";
+      });
+      return;
+    }
+    if ( _usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      setState(() {
+        _errorMessage = "E-posta ve Şifre boş olamaz.";
       });
       return;
     }
@@ -113,6 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
+            Text(_errorMessage!=null?"$_errorMessage":"",style:TextStyle(color:Colors.red),),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _login(context),
@@ -138,18 +151,21 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 _buildSocialLoginButton(
                   icon: Icons.email,
+                  iconColor:Colors.white,
                   label: 'Gmail',
                   color: Colors.red,
                   onTap: _loginWithGmail,
                 ),
                 _buildSocialLoginButton(
                   icon: Icons.apple,
+                  iconColor: Colors.white,
                   label: 'Apple',
                   color: Colors.black,
                   onTap: _loginWithApple,
                 ),
                 _buildSocialLoginButton(
                   icon: Icons.g_translate,
+                  iconColor: Colors.white,
                   label: 'Google',
                   color: Colors.blue,
                   onTap: _loginWithGoogle,
@@ -164,13 +180,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildSocialLoginButton({
     required IconData icon,
+    required Color iconColor,
     required String label,
     required Color color,
     required VoidCallback onTap,
   }) {
     return ElevatedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 20),
+      icon: Icon(icon, size: 20,color:iconColor,),
       label: Text(label, style: TextStyle(fontSize: 14)),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,

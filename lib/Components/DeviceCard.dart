@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class DeviceCard extends StatelessWidget {
@@ -18,15 +20,61 @@ class DeviceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(_getIconData(icon),color: isOn ?  Colors.lightGreen:Colors.red),
-            Text(name),
-            Text('Room: $roomName'),
-          ],
+    final random = Random();
+    final randomHours = 3 + random.nextInt(5); // 3 ile 7 arasında rastgele sayı
+
+    return SizedBox(
+      width: 175, // Sabit genişlik
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onLongPress: () {
+            // Tıklama fonksiyonu
+          },
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isOn ? Colors.lightGreen[100] : Colors.red[100],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _getIconData(icon),
+                    color: isOn ? Colors.lightGreen : Colors.red,
+                    size: 32,
+                  ),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  isOn
+                      ? 'Open for $randomHours hours'
+                      : 'Currently turned off', // Duruma göre yazı
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isOn ? Colors.green[800] : Colors.grey[700],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -60,6 +108,4 @@ class DeviceCard extends StatelessWidget {
         return Icons.device_unknown; // Varsayılan ikon
     }
   }
-
 }
-

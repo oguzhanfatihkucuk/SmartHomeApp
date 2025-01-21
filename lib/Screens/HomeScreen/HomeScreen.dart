@@ -75,14 +75,12 @@ class _HomeScreenState extends State<HomeScreen> {
         const devicePath = 'rooms/room1/devices/0/isOn';
         await database.ref(devicePath).set(true);
       });
-    }
-    else if (command.contains("turn off the TV")) {
-      setState(() async{
+    } else if (command.contains("turn off the TV")) {
+      setState(() async {
         const devicePath = 'rooms/room1/devices/0/isOn';
         await database.ref(devicePath).set(false);
       });
-    }
-    else {
+    } else {
       setState(() {
         _command = "Komut anlaşılamadı.";
       });
@@ -176,62 +174,68 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Ana Sayfa'),
         actions: [
-          IconButton(
-            onPressed: isProcessing
-                ? null // İşlem sırasında butonu devre dışı bırak
-                : () async => await turnOffAllDevices(false),
-            icon: Icon(Icons.flash_off),
+          Tooltip(
+            message: 'Tüm cihazları kapat',
+            child: IconButton(
+              onPressed: isProcessing
+                  ? null
+                  : () async => await turnOffAllDevices(false),
+              icon: Icon(Icons.flash_off),
+            ),
           ),
-          IconButton(
-            onPressed: isProcessing
-                ? null // İşlem sırasında butonu devre dışı bırak
-                : () async => await turnOffAllDevices(true),
-            icon: Icon(Icons.flash_on),
+          Tooltip(
+            message: 'Tüm cihazları aç',
+            child: IconButton(
+              onPressed: isProcessing
+                  ? null
+                  : () async => await turnOffAllDevices(true),
+              icon: Icon(Icons.flash_on),
+            ),
           ),
         ],
       ),
-      body: rooms.isEmpty
-          ? Center(
-              child:
-                  CircularProgressIndicator()) // Veri yükleniyorsa gösterilecek widget
-          : isProcessing
-              ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  itemCount: rooms.length,
-                  itemBuilder: (context, roomIndex) {
-                    final room = rooms[roomIndex];
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            room.name,
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 200,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: room.devices.length,
-                            itemBuilder: (context, deviceIndex) {
-                              final device = room.devices[deviceIndex];
-                              return DeviceCard(
-                                isOn: device.isOn,
-                                name: device.name,
-                                icon: device.icon,
-                                roomName: room.name,
-                                initialStatus: device.isOn,
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+      body: rooms.isEmpty || isProcessing
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              padding: EdgeInsets.only(bottom: 56),
+              itemCount: rooms.length,
+              itemBuilder: (context, roomIndex) {
+                final room = rooms[roomIndex];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        room.name,
+                        style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: 200,// Maksimum yükseklik
+                      ),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: room.devices.length,
+                        itemBuilder: (context, deviceIndex) {
+                          final device = room.devices[deviceIndex];
+                          return DeviceCard(
+                            isOn: device.isOn,
+                            name: device.name,
+                            icon: device.icon,
+                            roomName: room.name,
+                            initialStatus: device.isOn,
+                          );
+                        },
+                      ),
+                    )
+
+                  ],
+                );
+              },
+            ),
       bottomSheet: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[

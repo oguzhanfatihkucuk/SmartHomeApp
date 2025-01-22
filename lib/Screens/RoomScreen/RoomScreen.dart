@@ -43,14 +43,12 @@ class _RoomScreenState extends State<RoomScreen> {
     }
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Odalarım"),
+        forceMaterialTransparency: true,
+        title: const Text("My Rooms"),
       ),
       body: rooms.isEmpty
           ? Center(

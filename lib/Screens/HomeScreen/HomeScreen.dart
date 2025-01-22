@@ -172,7 +172,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ana Sayfa'),
+        forceMaterialTransparency: true,
+        title: const Text('Home Page'),
         actions: [
           Tooltip(
             message: 'Tüm cihazları kapat',

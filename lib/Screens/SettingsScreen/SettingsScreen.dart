@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import '../../Services/SharedPreferences.dart';
+import 'Subpages/ProfileScreen.dart';
+import 'Subpages/SettingsDetailScreen.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profilim'),
-        centerTitle: true,
+        title: const Text('Settings'),
+
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -48,17 +49,25 @@ class SettingsScreen extends StatelessWidget {
                 title: const Text("Profil Detayları"),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  // Profil detayları sayfasına yönlendirme
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfileScreen()),
+                  );
                 },
               ),
+
               ListTile(
                 leading: const Icon(Icons.settings, color: Colors.blue),
                 title: const Text("Ayarlar"),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  // Ayarlar sayfasına yönlendirme
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingsDetailScreen()),
+                  );
                 },
               ),
+
               ListTile(
                 leading: const Icon(Icons.help_outline, color: Colors.blue),
                 title: const Text("Destek"),

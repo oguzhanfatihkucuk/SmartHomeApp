@@ -5,9 +5,6 @@ import '../HomeScreen/HomeScreen.dart';
 import '../RoomScreen/RoomScreen.dart';
 import '../SettingsScreen/SettingsScreen.dart';
 
-
-
-
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();

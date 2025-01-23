@@ -4,14 +4,14 @@ import 'package:provider/provider.dart';
 import '../../Services/SharedPreferences.dart';
 import 'Subpages/ProfileScreen.dart';
 import 'Subpages/SettingsDetailScreen.dart';
-import 'Subpages/SupportScreen.dart';
 
-class MainProfileScreen extends StatelessWidget {
+class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
+
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -19,15 +19,15 @@ class MainProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Profile Information
+              // Profil Bilgileri
               const CircleAvatar(
                 radius: 50,
                 backgroundImage: NetworkImage(
-                    "https://via.placeholder.com/150"), // Profile picture
+                    "https://via.placeholder.com/150"), // Profil resmi
               ),
               const SizedBox(height: 16),
               const Text(
-                "Name Surname",
+                "Ad Soyad",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -35,7 +35,7 @@ class MainProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                "emailaddress@example.com",
+                "adsoyad@örnek.com",
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey.shade600,
@@ -43,10 +43,10 @@ class MainProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Divider(),
-              // Settings Menu
+              // Ayarlar Menüsü
               ListTile(
                 leading: const Icon(Icons.person, color: Colors.blue),
-                title: const Text("Profile Details"),
+                title: const Text("Profil Detayları"),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
                   Navigator.push(
@@ -55,9 +55,10 @@ class MainProfileScreen extends StatelessWidget {
                   );
                 },
               ),
+
               ListTile(
                 leading: const Icon(Icons.settings, color: Colors.blue),
-                title: const Text("Settings"),
+                title: const Text("Ayarlar"),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
                   Navigator.push(
@@ -66,54 +67,53 @@ class MainProfileScreen extends StatelessWidget {
                   );
                 },
               ),
+
               ListTile(
                 leading: const Icon(Icons.help_outline, color: Colors.blue),
-                title: const Text("Support"),
+                title: const Text("Destek"),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SupportScreen()),
-                  );
+                  // Destek sayfasına yönlendirme
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text("Logout"),
+                title: const Text("Çıkış"),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () async {
-                  // Use showDialog to display a pop-up
+                  // Pop-up göstermek için showDialog kullanılıyor
                   final shouldLogout = await showDialog<bool>(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: const Text("Log Out"),
+                        title: const Text("Çıkış Yap"),
                         content: const Text(
-                            "Are you sure you want to log out of your account?"),
+                            "Hesabınızdan çıkış yapmak istediğinizden emin misiniz?"),
                         actions: [
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context).pop(false); // Cancel option
+                              Navigator.of(context)
+                                  .pop(false); // İptal seçeneği
                             },
-                            child: const Text("No"),
+                            child: const Text("Hayır"),
                           ),
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context).pop(true); // Logout option
+                              Navigator.of(context).pop(true); // Çıkış seçeneği
                             },
-                            child: const Text("Yes"),
+                            child: const Text("Evet"),
                           ),
                         ],
                       );
                     },
                   );
 
-                  // Perform logout if user confirms
+                  // Kullanıcı çıkışı onayladıysa işlemi gerçekleştir
                   if (shouldLogout == true) {
                     final auth = Provider.of<AuthModel>(context, listen: false);
                     if (auth != null) {
-                      await auth.logout(); // Logout
-                      context.go('/'); // Navigate to LoginScreen
+                      await auth.logout(); // Çıkış yap
+                      context.go('/'); // LoginScreen'e yönlendir
                     }
                   }
                 },

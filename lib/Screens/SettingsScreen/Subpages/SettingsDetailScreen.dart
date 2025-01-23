@@ -6,15 +6,14 @@ class SettingsDetailScreen extends StatefulWidget {
 }
 
 class _SettingsDetailScreenState extends State<SettingsDetailScreen> {
-  // Notification state (true or false)
+  // Bildirim durumu (true veya false)
   bool _isNotificationEnabled = true;
   bool _isDarkMode = true;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: const Text('Ayarlar'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -22,7 +21,7 @@ class _SettingsDetailScreenState extends State<SettingsDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'General Settings',
+              "Genel Ayarlar",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -30,27 +29,27 @@ class _SettingsDetailScreenState extends State<SettingsDetailScreen> {
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: const Text('Enable Notifications'),
-              value: _isNotificationEnabled, // Use the state here
+              title: const Text('Bildirimleri Aç'),
+              value: _isNotificationEnabled, // Durumu burada kullanıyoruz
               onChanged: (bool value) {
                 setState(() {
-                  _isNotificationEnabled = value; // Update the state
+                  _isNotificationEnabled = value; // Durumu güncelliyoruz
                 });
               },
             ),
             SwitchListTile(
-              title: const Text('Activate Dark Mode'),
+              title: const Text('Kararan Modu Aktif Et'),
               value: _isDarkMode,
               onChanged: (bool value) {
                 setState(() {
-                  _isDarkMode = value; // Update the state
+                  _isDarkMode = value; // Durumu güncelliyoruz
                 });
               },
             ),
             const SizedBox(height: 16),
             const Divider(),
             const Text(
-              'Account Settings',
+              "Hesap Ayarları",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -59,16 +58,16 @@ class _SettingsDetailScreenState extends State<SettingsDetailScreen> {
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.email),
-              title: const Text('Change Email Address'),
+              title: const Text("E-posta Adresini Değiştir"),
               onTap: () {
-                // Handle email change logic here
+                // E-posta değişikliği işlemleri
               },
             ),
             ListTile(
               leading: const Icon(Icons.lock),
-              title: const Text('Change Password'),
+              title: const Text("Şifreyi Değiştir"),
               onTap: () {
-                // Handle password change logic here
+                // Şifre değiştirme işlemleri
               },
             ),
           ],

@@ -1,9 +1,8 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../HomeScreen/HomeScreen.dart';
 import '../RoomScreen/RoomScreen.dart';
-import '../SettingsScreen/SettingsScreen.dart';
+import '../MainProfileScreen/MainProfileScreen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -16,7 +15,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     RoomScreen(),
-    SettingsScreen(),
+    MainProfileScreen(),
   ];
 
   @override
@@ -33,15 +32,15 @@ class _MainScreenState extends State<MainScreen> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Ana Ekran',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.meeting_room),
-            label: 'Odalar',
+            label: 'Rooms',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Ayarlar',
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

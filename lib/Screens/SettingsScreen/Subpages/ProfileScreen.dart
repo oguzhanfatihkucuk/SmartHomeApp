@@ -5,7 +5,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profil Detayları'),
+        title: const Text('Profile Details'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -15,11 +15,11 @@ class ProfileScreen extends StatelessWidget {
             const CircleAvatar(
               radius: 50,
               backgroundImage: NetworkImage(
-                  "https://via.placeholder.com/150"), // Profil resmi
+                  "https://via.placeholder.com/150"), // Profile picture
             ),
             const SizedBox(height: 16),
             const Text(
-              "Ad Soyad",
+              "Name Surname",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -27,7 +27,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "adsoyad@örnek.com",
+              "name.surname@example.com",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey.shade600,
@@ -36,7 +36,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 16),
             const Divider(),
             const Text(
-              "Kullanıcı Hakkında",
+              "About User",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -44,7 +44,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              "Burada kullanıcının hakkında bilgileri yer alacak.",
+              "This section will contain information about the user.",
               style: TextStyle(fontSize: 16),
             ),
           ],

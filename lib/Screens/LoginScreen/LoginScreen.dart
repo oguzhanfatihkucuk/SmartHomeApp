@@ -10,8 +10,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController(text: 'deneme@gmail.com');
+  final _passwordController = TextEditingController(text: 'deneme');
   String? _errorMessage;
 
   bool _isLoading = false; // Yüklenme durumu

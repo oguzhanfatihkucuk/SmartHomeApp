@@ -79,7 +79,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                "Cihazlar (${devices.length})",
+                "Devices (${devices.length})",
                 style: const TextStyle(
                     fontSize: 20, fontWeight: FontWeight.bold),
               ),

@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../../Components/DeviceCard.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../../models/RoomModel/RoomModel.dart';
@@ -25,14 +26,49 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final stt.SpeechToText _speech = stt.SpeechToText();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   bool _isListening = false;
   String _command = "";
-  bool isProcessing = false; // İşlem durumu için bir değişken
+  bool isProcessing = false;
+  String? _fcmToken;
 
-  // Sesli komutları başlatma
+  @override
+  void initState() {
+    super.initState();
+    _fetchRooms();
+    _setupFCM();
+  }
+
+  Future<void> _setupFCM() async {
+    // Get FCM token
+    _fcmToken = await _firebaseMessaging.getToken();
+    print("FCM Token: $_fcmToken");
+
+    // Listen for foreground messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("Foreground message received: ${message.notification?.title}");
+    });
+  }
+
+  Future<void> _sendNotification(String title, String body) async {
+    try {
+      // In a real app, this should be done through a backend service
+      // This is just for demonstration purposes
+      print("Sending notification: $title - $body");
+
+      // You would normally send this to your backend which would then send the FCM message
+      // For now, we'll just log it
+      print('Notification would be sent to device with token: $_fcmToken');
+      print('Title: $title, Body: $body');
+    } catch (e) {
+      print('Error sending notification: $e');
+    }
+  }
+
   void _startListening() async {
     bool available = await _speech.initialize();
     print("Dinleme başlatıldı");
+    await _sendNotification("Lights", "Lights turned on");
     if (available) {
       setState(() {
         _isListening = true;
@@ -49,7 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Dinlemeyi durdurma
   void _stopListening() async {
     _speech.stop();
     print("Dinleme Durduruldu");
@@ -58,28 +93,23 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // Komutları işleme
-  void _processCommand(String command) {
+  void _processCommand(String command) async {
     if (command.contains("turn on the lights")) {
-      setState(() async {
-        const devicePath = 'rooms/room1/devices/1/isOn';
-        await database.ref(devicePath).set(true);
-      });
+      const devicePath = 'rooms/room1/devices/1/isOn';
+      await database.ref(devicePath).set(true);
+      await _sendNotification("Lights", "Lights turned on");
     } else if (command.contains("turn off the lights")) {
-      setState(() async {
-        const devicePath = 'rooms/room1/devices/1/isOn';
-        await database.ref(devicePath).set(false);
-      });
+      const devicePath = 'rooms/room1/devices/1/isOn';
+      await database.ref(devicePath).set(false);
+      await _sendNotification("Lights", "Lights turned off");
     } else if (command.contains("turn on the TV")) {
-      setState(() async {
-        const devicePath = 'rooms/room1/devices/0/isOn';
-        await database.ref(devicePath).set(true);
-      });
+      const devicePath = 'rooms/room1/devices/0/isOn';
+      await database.ref(devicePath).set(true);
+      await _sendNotification("TV", "TV turned on");
     } else if (command.contains("turn off the TV")) {
-      setState(() async {
-        const devicePath = 'rooms/room1/devices/0/isOn';
-        await database.ref(devicePath).set(false);
-      });
+      const devicePath = 'rooms/room1/devices/0/isOn';
+      await database.ref(devicePath).set(false);
+      await _sendNotification("TV", "TV turned off");
     } else {
       setState(() {
         _command = "Komut anlaşılamadı.";
@@ -89,16 +119,10 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchRooms();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchRooms();
-  }
-
   final database = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL:
-        'https://smarthomeapp-ed852-default-rtdb.asia-southeast1.firebasedatabase.app',
+    'https://smarthomeapp-ed852-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   List<Room> rooms = [];
@@ -116,54 +140,46 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     } catch (e) {
       print('Error fetching rooms: $e');
-      // Handle the error appropriately (e.g., show an error message to the user)
     }
   }
 
   Future<void> turnOffAllDevices(bool statusOfDevices) async {
     try {
       setState(() {
-        isProcessing = true; // İşlem başladı
+        isProcessing = true;
       });
 
-      // Rooms path'i
       final roomsPath = 'rooms';
-
-      // Firebase'den odaları al
       final roomsSnapshot = await database.ref(roomsPath).get();
 
       if (roomsSnapshot.exists) {
-        // Rooms Map'ini al
         final rooms = roomsSnapshot.value as Map;
 
-        // Her oda için döngü
         for (final roomId in rooms.keys) {
-          // Odaya ait devices listesi
           final devicesPath = 'rooms/$roomId/devices';
           final devicesSnapshot = await database.ref(devicesPath).get();
 
           if (devicesSnapshot.exists) {
             final devices = devicesSnapshot.value as List;
 
-            // Her cihazın isOn durumunu güncelle
-            for (int deviceIndex = 0;
-                deviceIndex < devices.length;
-                deviceIndex++) {
+            for (int deviceIndex = 0; deviceIndex < devices.length; deviceIndex++) {
               final devicePath = '$devicesPath/$deviceIndex/isOn';
               await database.ref(devicePath).set(statusOfDevices);
-
-              _fetchRooms();
             }
           }
         }
       }
 
       print("Tüm cihazlar başarıyla güncellendi.");
+      await _sendNotification(
+        "All Devices",
+        statusOfDevices ? "All devices turned on" : "All devices turned off",
+      );
     } catch (e) {
       print("Hata: $e");
     } finally {
       setState(() {
-        isProcessing = false; // İşlem tamamlandı
+        isProcessing = false;
       });
     }
   }
@@ -198,45 +214,42 @@ class _HomeScreenState extends State<HomeScreen> {
       body: rooms.isEmpty || isProcessing
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-              padding: EdgeInsets.only(bottom: 56),
-              itemCount: rooms.length,
-              itemBuilder: (context, roomIndex) {
-                final room = rooms[roomIndex];
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        room.name,
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: 200,// Maksimum yükseklik
-                      ),
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: room.devices.length,
-                        itemBuilder: (context, deviceIndex) {
-                          final device = room.devices[deviceIndex];
-                          return DeviceCard(
-                            isOn: device.isOn,
-                            name: device.name,
-                            icon: device.icon,
-                            roomName: room.name,
-                            initialStatus: device.isOn,
-                          );
-                        },
-                      ),
-                    )
-
-                  ],
-                );
-              },
-            ),
+        padding: EdgeInsets.only(bottom: 56),
+        itemCount: rooms.length,
+        itemBuilder: (context, roomIndex) {
+          final room = rooms[roomIndex];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  room.name,
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+              ),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 200),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: room.devices.length,
+                  itemBuilder: (context, deviceIndex) {
+                    final device = room.devices[deviceIndex];
+                    return DeviceCard(
+                      isOn: device.isOn,
+                      name: device.name,
+                      icon: device.icon,
+                      roomName: room.name,
+                      initialStatus: device.isOn,
+                    );
+                  },
+                ),
+              )
+            ],
+          );
+        },
+      ),
       bottomSheet: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[

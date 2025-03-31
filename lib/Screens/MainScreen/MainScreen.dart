@@ -32,15 +32,15 @@ class _MainScreenState extends State<MainScreen> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Ana Ekran',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.meeting_room),
-            label: 'Odalar',
+            label: 'Rooms',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Ayarlar',
+            label: 'Settings',
           ),
         ],
       ),

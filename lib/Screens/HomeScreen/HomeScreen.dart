@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:firebase_messaging/firebase_messaging.dart';
+
 import '../../Components/DeviceCard.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../../models/RoomModel/RoomModel.dart';
@@ -26,49 +26,23 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final stt.SpeechToText _speech = stt.SpeechToText();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   bool _isListening = false;
   String _command = "";
   bool isProcessing = false;
-  String? _fcmToken;
+
 
   @override
   void initState() {
     super.initState();
     _fetchRooms();
-    _setupFCM();
+
   }
 
-  Future<void> _setupFCM() async {
-    // Get FCM token
-    _fcmToken = await _firebaseMessaging.getToken();
-    print("FCM Token: $_fcmToken");
 
-    // Listen for foreground messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("Foreground message received: ${message.notification?.title}");
-    });
-  }
-
-  Future<void> _sendNotification(String title, String body) async {
-    try {
-      // In a real app, this should be done through a backend service
-      // This is just for demonstration purposes
-      print("Sending notification: $title - $body");
-
-      // You would normally send this to your backend which would then send the FCM message
-      // For now, we'll just log it
-      print('Notification would be sent to device with token: $_fcmToken');
-      print('Title: $title, Body: $body');
-    } catch (e) {
-      print('Error sending notification: $e');
-    }
-  }
 
   void _startListening() async {
     bool available = await _speech.initialize();
     print("Dinleme başlatıldı");
-    await _sendNotification("Lights", "Lights turned on");
     if (available) {
       setState(() {
         _isListening = true;
@@ -97,19 +71,14 @@ class _HomeScreenState extends State<HomeScreen> {
     if (command.contains("turn on the lights")) {
       const devicePath = 'rooms/room1/devices/1/isOn';
       await database.ref(devicePath).set(true);
-      await _sendNotification("Lights", "Lights turned on");
     } else if (command.contains("turn off the lights")) {
       const devicePath = 'rooms/room1/devices/1/isOn';
       await database.ref(devicePath).set(false);
-      await _sendNotification("Lights", "Lights turned off");
     } else if (command.contains("turn on the TV")) {
       const devicePath = 'rooms/room1/devices/0/isOn';
-      await database.ref(devicePath).set(true);
-      await _sendNotification("TV", "TV turned on");
     } else if (command.contains("turn off the TV")) {
       const devicePath = 'rooms/room1/devices/0/isOn';
       await database.ref(devicePath).set(false);
-      await _sendNotification("TV", "TV turned off");
     } else {
       setState(() {
         _command = "Komut anlaşılamadı.";
@@ -171,10 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       print("Tüm cihazlar başarıyla güncellendi.");
-      await _sendNotification(
-        "All Devices",
-        statusOfDevices ? "All devices turned on" : "All devices turned off",
-      );
+
     } catch (e) {
       print("Hata: $e");
     } finally {

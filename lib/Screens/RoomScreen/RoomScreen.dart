@@ -113,7 +113,7 @@ class _RoomScreenState extends State<RoomScreen> {
                             child: Row(
                               children: [
                                 Text(
-                                  "${room.devices.length} cihaz",
+                                  "${room.devices.length} devices",
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey.shade600,

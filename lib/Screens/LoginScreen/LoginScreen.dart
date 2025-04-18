@@ -10,67 +10,67 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _usernameController = TextEditingController(text: 'deneme@gmail.com');
-  final _passwordController = TextEditingController(text: 'deneme');
+  final _emailController = TextEditingController(text: 'test@gmail.com');
+  final _passwordController = TextEditingController(text: 'test');
   String? _errorMessage;
 
-  bool _isLoading = false; // Yüklenme durumu
+  bool _isLoading = false; // Loading state
 
   void _login(BuildContext context) async {
-
     final auth = Provider.of<AuthModel>(context, listen: false);
 
-    if (_usernameController.text.isEmpty ) {
+    if (_emailController.text.isEmpty) {
       setState(() {
-        _errorMessage = "E-posta boş olamaz.";
+        _errorMessage = "Email cannot be empty.";
       });
       return;
     }
 
-    if ( _passwordController.text.isEmpty) {
+    if (_passwordController.text.isEmpty) {
       setState(() {
-        _errorMessage = "Şifre boş olamaz.";
+        _errorMessage = "Password cannot be empty.";
       });
       return;
     }
-    if ( _usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       setState(() {
-        _errorMessage = "E-posta ve Şifre boş olamaz.";
+        _errorMessage = "Email and Password cannot be empty.";
       });
       return;
     }
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null; // Eski hatayı sıfırla
+      _errorMessage = null; // Reset previous error
     });
 
     try {
-      await auth.login(_usernameController.text, _passwordController.text);
-      context.go('/main'); // Başarılı girişte yönlendirme
+      await auth.login(_emailController.text, _passwordController.text);
+      context.go('/main'); // Redirect on successful login
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString(); // Hata mesajını sakla
+        _errorMessage = e.toString(); // Save error message
       });
     } finally {
       setState(() {
-        _isLoading = false; // İşlem tamamlandığında yüklenme durumunu kapat
+        _isLoading = false; // Turn off loading state when process completes
       });
     }
   }
 
   void _loginWithGoogle() {
-    // Google ile giriş işlemi
+    // Google login process
     context.go('/main');
   }
 
   void _loginWithApple() {
-    // Apple ile giriş işlemi
+    // Apple login process
     context.go('/main');
   }
 
   void _loginWithGmail() {
-    // Gmail ile giriş işlemi
+    // Gmail login process
     context.go('/main');
   }
 
@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthModel>(context);
 
-    // Eğer giriş yapılmışsa doğrudan MainScreen'e yönlendir
+    // If already logged in, redirect directly to MainScreen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (auth.isLoggedIn) {
         context.go('/main');
@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text('Giriş Yap',)),
+      appBar: AppBar(title: Text('Login')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -100,9 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 30),
             TextField(
-              controller: _usernameController,
+              controller: _emailController,
               decoration: InputDecoration(
-                labelText: 'Kullanıcı Adı',
+                labelText: 'Email',
                 filled: true,
                 fillColor: Colors.grey.shade200,
                 border: OutlineInputBorder(
@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(
-                labelText: 'Şifre',
+                labelText: 'Password',
                 filled: true,
                 fillColor: Colors.grey.shade200,
                 border: OutlineInputBorder(
@@ -125,7 +125,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            Text(_errorMessage!=null?"$_errorMessage":"",style:TextStyle(color:Colors.red),),
+            Text(
+              _errorMessage != null ? "$_errorMessage" : "",
+              style: TextStyle(color: Colors.red),
+            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _login(context),
@@ -136,13 +139,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Text('Giriş Yap', style: TextStyle(fontSize: 16)),
+              child: Text('Login', style: TextStyle(fontSize: 16)),
             ),
             const SizedBox(height: 20),
             const Divider(),
             const SizedBox(height: 10),
             const Text(
-              'Veya ile giriş yapın:',
+              'Or login with:',
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             SizedBox(height: 20),
@@ -151,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 _buildSocialLoginButton(
                   icon: Icons.email,
-                  iconColor:Colors.white,
+                  iconColor: Colors.white,
                   label: 'Gmail',
                   color: Colors.red,
                   onTap: _loginWithGmail,
@@ -187,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return ElevatedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 20,color:iconColor,),
+      icon: Icon(icon, size: 20, color: iconColor),
       label: Text(label, style: TextStyle(fontSize: 14)),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,

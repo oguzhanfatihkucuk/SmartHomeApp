@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-
+import 'package:http/http.dart' as http;
 import '../../Components/DeviceCard.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../../models/RoomModel/RoomModel.dart';
@@ -43,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _startListening() async {
     bool available = await _speech.initialize();
     print("Dinleme başlatıldı");
+    print(available);
     if (available) {
       setState(() {
         _isListening = true;
@@ -67,18 +68,50 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> sendShellyCommand(String command) async {
+    const ipAddress = '192.168.1.6';
+    const relayEndpoint = '/relay/0';
+    const onCommand = '?turn=on';
+    const offCommand = '?turn=off';
+
+    try {
+      if (command.contains("turn on the lights")) {
+        final url = Uri.parse('http://$ipAddress$relayEndpoint$onCommand');
+        final response = await http.get(url);
+        if (response.statusCode == 200) {
+          print('Shelly açma komutu gönderildi.');
+        } else {
+          print('Shelly açma komutu başarısız oldu: ${response.statusCode}');
+        }
+      } else if (command.contains("turn off the lights")) {
+        final url = Uri.parse('http://$ipAddress$relayEndpoint$offCommand');
+        final response = await http.get(url);
+        if (response.statusCode == 200) {
+          print('Shelly kapatma komutu gönderildi.');
+        } else {
+          print('Shelly kapatma komutu başarısız oldu: ${response.statusCode}');
+        }
+      }
+      // Diğer komutlar için benzer şekilde devam edebilirsiniz.
+    } catch (e) {
+      print('Shelly komutu gönderilirken bir hata oluştu: $e');
+    }
+  }
   void _processCommand(String command) async {
     if (command.contains("turn on the lights")) {
       const devicePath = 'rooms/room1/devices/1/isOn';
       await database.ref(devicePath).set(true);
+      sendShellyCommand(command); // Shelly'ye komut gönder
     } else if (command.contains("turn off the lights")) {
       const devicePath = 'rooms/room1/devices/1/isOn';
       await database.ref(devicePath).set(false);
+      sendShellyCommand(command); // Shelly'ye komut gönder
     } else if (command.contains("turn on the TV")) {
       const devicePath = 'rooms/room1/devices/0/isOn';
+      await database.ref(devicePath).set(true); // TV kontrol mantığınızı buraya ekleyin
     } else if (command.contains("turn off the TV")) {
       const devicePath = 'rooms/room1/devices/0/isOn';
-      await database.ref(devicePath).set(false);
+      await database.ref(devicePath).set(false); // TV kontrol mantığınızı buraya ekleyin
     } else {
       setState(() {
         _command = "Komut anlaşılamadı.";
@@ -87,7 +120,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     _fetchRooms();
   }
-
   final database = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL:

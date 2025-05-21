@@ -8,8 +8,7 @@ import 'Services/SharedPreferences.dart';
 import 'firebase_options.dart';
 
 //TODO ip ardresi için güncellemeni yap
-//TODO cihazın açık kapalı durumunu çeksin ve database güncelleme yapsın
-//TODO ilk değer cihazdan gelicek default bir değer gelmeyecek
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

@@ -74,8 +74,10 @@ class _HomeScreenState extends State<HomeScreen> {
     const onCommand = '?turn=on';
     const offCommand = '?turn=off';
 
+    print("girdi1");
+
     try {
-      if (command.contains("turn on the lights")) {
+      if (command.toLowerCase().contains("turn on the light")) {
         final url = Uri.parse('http://$ipAddress$relayEndpoint$onCommand');
         final response = await http.get(url);
         if (response.statusCode == 200) {
@@ -83,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
         } else {
           print('Shelly açma komutu başarısız oldu: ${response.statusCode}');
         }
-      } else if (command.contains("turn off the lights")) {
+      } else if (command.toLowerCase().contains("turn off the light")) {
         final url = Uri.parse('http://$ipAddress$relayEndpoint$offCommand');
         final response = await http.get(url);
         if (response.statusCode == 200) {
@@ -98,14 +100,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _processCommand(String command) async {
-    if (command.contains("turn on the lights")) {
+
+    print("girdi2");
+
+    if (command.toLowerCase().contains("turn on the light")) {
       const devicePath = 'rooms/room1/devices/1/isOn';
       await database.ref(devicePath).set(true);
-      sendShellyCommand(command); // Shelly'ye komut gönder
-    } else if (command.contains("turn off the lights")) {
+      await sendShellyCommand(command); // Shelly'ye komut gönder
+      print("güncelledi");
+
+    } else if (command.toLowerCase().contains("turn off the light")) {
       const devicePath = 'rooms/room1/devices/1/isOn';
       await database.ref(devicePath).set(false);
-      sendShellyCommand(command); // Shelly'ye komut gönder
+      await sendShellyCommand(command); // Shelly'ye komut gönder
     } else if (command.contains("turn on the TV")) {
       const devicePath = 'rooms/room1/devices/0/isOn';
       await database.ref(devicePath).set(true); // TV kontrol mantığınızı buraya ekleyin
